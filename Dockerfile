@@ -2,11 +2,16 @@ FROM ubuntu:trusty
 MAINTAINER ClassCat Co.,Ltd. <support@classcat.com>
 
 ########################################################################
-# ClassCat/Ubuntu-Supervisord 3 Dockerfile
+# ClassCat/Redmine Dockerfile
 #   Maintained by ClassCat Co.,Ltd ( http://www.classcat.com/ )
 ########################################################################
 
 #--- HISTORY -----------------------------------------------------------
+# 20-may-15 : ruby2.1-dev removed.
+# 20-may-15 : trusty
+# 20-may-15 : 3.0.3
+# 18-may-15 : fixed.
+------------------------------------------------------------------------
 # 19-may-15 : trusty.
 # 17-may-15 : sed -i.bak
 # 16-may-15 : php5-gd php5-json php5-curl php5-imagick libapache2-mod-php5.
@@ -35,6 +40,23 @@ RUN php5enmod mcrypt
 
 RUN sed -i.bak -e "s/^;date\.timezone =.*$/date\.timezone = 'Asia\/Tokyo'/" /etc/php5/apache2/php.ini
 
+WORKDIR /usr/local
+RUN apt-get update \
+  && apt-get install -y libapache2-mod-passenger \
+       ruby1.9.1-dev build-essential zlib1g-dev \
+       imagemagick libmagickwand-dev libmysqlclient-dev \
+  && gem install bundler \
+  && wget http://www.redmine.org/releases/redmine-3.0.3.tar.gz \
+  && tar xfz redmine-3.0.3.tar.gz \
+  && chown -R root.root /usr/local/redmine-3.0.3 \
+  && ln -s /usr/local/redmine-3.0.3 /usr/local/redmine
+
+COPY assets/000-default.conf /etc/apache2/sites-available/000-default.conf
+COPY assets/passenger.conf   /etc/apache2/mods-available/passenger.conf
+
+WORKDIR /opt
+COPY assets/cc-init.sh /opt/cc-init.sh
+
 EXPOSE 22 80
 
-CMD echo "root:${ROOT_PASSWORD}" | chpasswd; /usr/sbin/sshd -D
+CMD /opt/cc-init.sh; /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
