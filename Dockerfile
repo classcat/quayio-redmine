@@ -12,7 +12,7 @@ MAINTAINER ClassCat Co.,Ltd. <support@classcat.com>
 # 20-may-15 : trusty
 # 20-may-15 : 3.0.3
 # 18-may-15 : fixed.
-------------------------------------------------------------------------
+#-----------------------------------------------------------------------
 # 19-may-15 : trusty.
 # 17-may-15 : sed -i.bak
 # 16-may-15 : php5-gd php5-json php5-curl php5-imagick libapache2-mod-php5.
