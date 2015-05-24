@@ -7,6 +7,7 @@ MAINTAINER ClassCat Co.,Ltd. <support@classcat.com>
 ########################################################################
 
 #--- HISTORY -----------------------------------------------------------
+# 24-may-15 : quay.io
 # 20-may-15 : ruby2.1-dev removed.
 # 20-may-15 : trusty
 # 20-may-15 : 3.0.3
@@ -20,31 +21,25 @@ MAINTAINER ClassCat Co.,Ltd. <support@classcat.com>
 
 RUN apt-get update && apt-get -y upgrade \
   && apt-get install -y language-pack-en language-pack-en-base \
-  && apt-get install -y language-pack-ja language-pack-ja-base
-
-RUN update-locale LANG="en_US.UTF-8"
-
-RUN apt-get install -y openssh-server supervisor rsyslog mysql-client \
-  apache2 php5 php5-mysql php5-mcrypt php5-intl \
-  php5-gd php5-json php5-curl php5-imagick libapache2-mod-php5 \
-  && apt-get clean
-
-RUN mkdir -p /var/run/sshd
-
-RUN sed -i.bak -e "s/^PermitRootLogin\s*.*$/PermitRootLogin yes/" /etc/ssh/sshd_config
+  && apt-get install -y language-pack-ja language-pack-ja-base \
+  && update-locale LANG="en_US.UTF-8" \
+  && apt-get install -y openssh-server supervisor rsyslog mysql-client \
+    apache2 php5 php5-mysql php5-mcrypt php5-intl \
+    php5-gd php5-json php5-curl php5-imagick libapache2-mod-php5 \
+  && mkdir -p /var/run/sshd \
+  && sed -i.bak -e "s/^PermitRootLogin\s*.*$/PermitRootLogin yes/" /etc/ssh/sshd_config
 # RUN sed -i -e 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
 
 COPY assets/supervisord.conf /etc/supervisor/supervisord.conf
 
-RUN php5enmod mcrypt
-
-RUN sed -i.bak -e "s/^;date\.timezone =.*$/date\.timezone = 'Asia\/Tokyo'/" /etc/php5/apache2/php.ini
+RUN php5enmod mcrypt \
+  && sed -i.bak -e "s/^;date\.timezone =.*$/date\.timezone = 'Asia\/Tokyo'/" /etc/php5/apache2/php.ini
 
 WORKDIR /usr/local
-RUN apt-get update \
-  && apt-get install -y libapache2-mod-passenger \
+RUN apt-get install -y libapache2-mod-passenger \
        ruby1.9.1-dev build-essential zlib1g-dev \
        imagemagick libmagickwand-dev libmysqlclient-dev \
+  && apt-get clean \
   && gem install bundler \
   && wget http://www.redmine.org/releases/redmine-3.0.3.tar.gz \
   && tar xfz redmine-3.0.3.tar.gz \
